@@ -25,7 +25,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto" id="navbar-links">
           <li class="nav-item">
             <a class="nav-link" href="#">Home</a>
           </li>
@@ -35,8 +35,22 @@
           <li class="nav-item">
             <a class="nav-link" href="#">Calendário</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" id="nav-login">
             <a class="nav-link" href="#">Login</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto" id="navbar-user" style="display:none;">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span id="navbar-welcome"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="#">Atividades</a></li>
+              <li><a class="dropdown-item" href="#">Perfil</a></li>
+              <li><a class="dropdown-item" href="#">Conquistas</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="navbar-logout">Sair</a></li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -96,12 +110,21 @@
         setTimeout(function(){ splash.style.display = 'none'; }, 500);
       }, 2000);
     });
-    // Alternar entre login e cadastro
+    // Alternar entre login e cadastro e autenticação
     document.addEventListener('DOMContentLoaded', function() {
       var showCadastro = document.getElementById('show-cadastro');
       var voltarLogin = document.getElementById('voltar-login');
       var loginCard = document.getElementById('login-card');
       var cadastroCard = document.getElementById('cadastro-card');
+      var loginForm = document.getElementById('login-form');
+      var cadastroForm = document.getElementById('cadastro-form');
+      var navbarLinks = document.getElementById('navbar-links');
+      var navbarUser = document.getElementById('navbar-user');
+      var navbarWelcome = document.getElementById('navbar-welcome');
+      var navLogin = document.getElementById('nav-login');
+      var navbarLogout = document.getElementById('navbar-logout');
+
+      // Alternância de telas
       if(showCadastro && voltarLogin && loginCard && cadastroCard) {
         showCadastro.onclick = function(e) {
           e.preventDefault();
@@ -115,7 +138,6 @@
         };
       }
       // Cadastro funcional
-      var cadastroForm = document.getElementById('cadastro-form');
       if(cadastroForm) {
         cadastroForm.onsubmit = function(e) {
           e.preventDefault();
@@ -128,6 +150,53 @@
           alert('Cadastro realizado com sucesso!');
           cadastroCard.style.display = 'none';
           loginCard.style.display = 'block';
+        };
+      }
+      // Autenticação de login
+      function autenticar(email, senha) {
+        var usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+        var usuario = usuarios.find(u => u.email === email && u.senha === senha);
+        return usuario || null;
+      }
+      function mostrarUsuario(usuario) {
+        if(navbarLinks) navbarLinks.style.display = 'none';
+        if(navbarUser) navbarUser.style.display = 'flex';
+        if(navbarWelcome) navbarWelcome.textContent = `Bem-vindo(a), ${usuario.nome}`;
+        if(loginCard) loginCard.style.display = 'none';
+        if(cadastroCard) cadastroCard.style.display = 'none';
+      }
+      function esconderUsuario() {
+        if(navbarLinks) navbarLinks.style.display = '';
+        if(navbarUser) navbarUser.style.display = 'none';
+        if(navbarWelcome) navbarWelcome.textContent = '';
+        if(loginCard) loginCard.style.display = 'block';
+      }
+      // Persistência de login
+      var usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
+      if(usuarioLogado) {
+        mostrarUsuario(usuarioLogado);
+      }
+      // Login
+      if(loginForm) {
+        loginForm.onsubmit = function(e) {
+          e.preventDefault();
+          var email = document.getElementById('login-email').value;
+          var senha = document.getElementById('login-senha').value;
+          var usuario = autenticar(email, senha);
+          if(usuario) {
+            localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+            mostrarUsuario(usuario);
+          } else {
+            alert('Email ou senha inválidos!');
+          }
+        };
+      }
+      // Logout
+      if(navbarLogout) {
+        navbarLogout.onclick = function(e) {
+          e.preventDefault();
+          localStorage.removeItem('usuarioLogado');
+          esconderUsuario();
         };
       }
     });
