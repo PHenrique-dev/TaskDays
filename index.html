@@ -58,6 +58,15 @@
   </nav>
   <!-- Tela de Login -->
   <main class="container d-flex flex-column justify-content-center align-items-center" style="min-height:80vh;">
+    <!-- Toast de notificação -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:11000">
+      <div id="toastNotificacao" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastNotificacaoBody"></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
     <!-- Tela de Conquistas -->
     <div id="conquistas-card" class="card shadow p-4 w-100" style="max-width:500px; display:none;">
       <h3 class="mb-3 text-center" style="color:var(--primary-color);">Conquistas</h3>
@@ -210,6 +219,42 @@
   <script src="js/auth.js"></script>
   <script src="js/calendar.js"></script>
   <script>
+      // Notificações de início de tarefas
+      function verificarNotificacoesAtividades() {
+        if(!usuarioLogado) return;
+        var atividades = getAtividades();
+        var hoje = diaAtualSemana();
+        var agora = new Date();
+        var horaAtual = agora.getHours().toString().padStart(2, '0') + ':' + agora.getMinutes().toString().padStart(2, '0');
+        atividades.forEach(function(atividade, idx) {
+          if(atividade.dias.includes(hoje)) {
+            // Notificar 5 minutos antes do início
+            var horaInicio = atividade.horaInicio;
+            var dtInicio = new Date(agora);
+            var [h, m] = horaInicio.split(':');
+            dtInicio.setHours(parseInt(h));
+            dtInicio.setMinutes(parseInt(m));
+            dtInicio.setSeconds(0);
+            var dtNotificar = new Date(dtInicio.getTime() - 5*60000);
+            if(
+              agora.getHours() === dtNotificar.getHours() &&
+              agora.getMinutes() === dtNotificar.getMinutes()
+            ) {
+              mostrarToast(`A atividade "${atividade.nome}" começa em 5 minutos!`);
+            }
+          }
+        });
+      }
+      setInterval(verificarNotificacoesAtividades, 60000); // verifica a cada minuto
+
+      // Toast helper
+      function mostrarToast(msg) {
+        var toastBody = document.getElementById('toastNotificacaoBody');
+        toastBody.textContent = msg;
+        var toastEl = document.getElementById('toastNotificacao');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
     // Splash screen animation
     window.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
@@ -376,6 +421,7 @@
           pontosConsecutivos++;
           localStorage.setItem('pontosConsecutivos_' + usuarioLogado.email, pontosConsecutivos);
           diaConcluido = true;
+          mostrarToast('Parabéns! Você concluiu todas as atividades do dia!');
         }
       }
       // Dias da semana checkboxes
