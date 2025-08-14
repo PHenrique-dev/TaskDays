@@ -1,0 +1,28 @@
+/* TaskDay - Estilos principais */
+:root {
+  --primary-color: #2E2E2E;
+  --secondary-color: #50C878;
+}
+body {
+  background-color: #f8f9fa;
+  color: var(--primary-color);
+  font-family: 'Roboto', Arial, sans-serif;
+}
+.navbar {
+  background-color: var(--primary-color) !important;
+}
+.navbar-brand, .nav-link {
+  color: #fff !important;
+}
+.btn-primary {
+  background-color: var(--secondary-color);
+  border: none;
+}
+.btn-primary:hover {
+  background-color: #43a36c;
+}
+@media (max-width: 768px) {
+  .navbar-nav {
+    text-align: center;
+  }
+}
