@@ -44,20 +44,40 @@
   </nav>
   <!-- Tela de Login -->
   <main class="container d-flex flex-column justify-content-center align-items-center" style="min-height:80vh;">
-    <div class="card shadow p-4 w-100" style="max-width:350px;">
+    <!-- Login e Cadastro -->
+    <div id="login-card" class="card shadow p-4 w-100" style="max-width:350px;">
       <h2 class="mb-4 text-center" style="color:var(--primary-color);">Entrar</h2>
-      <form>
+      <form id="login-form">
         <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" placeholder="Digite seu email" required>
+          <label for="login-email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="login-email" placeholder="Digite seu email" required>
         </div>
         <div class="mb-3">
-          <label for="senha" class="form-label">Senha</label>
-          <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
+          <label for="login-senha" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="login-senha" placeholder="Digite sua senha" required>
         </div>
         <button type="submit" class="btn btn-primary w-100 mb-2">Entrar</button>
-        <a href="#" class="d-block text-center mb-2" style="color:var(--secondary-color);">Cadastrar</a>
+        <a href="#" id="show-cadastro" class="d-block text-center mb-2" style="color:var(--secondary-color);">Cadastrar</a>
         <button type="button" class="btn btn-outline-dark w-100"><i class="fa-brands fa-google"></i> Entrar com Google</button>
+      </form>
+    </div>
+    <div id="cadastro-card" class="card shadow p-4 w-100" style="max-width:350px; display:none;">
+      <h2 class="mb-4 text-center" style="color:var(--primary-color);">Cadastro</h2>
+      <form id="cadastro-form">
+        <div class="mb-3">
+          <label for="cadastro-nome" class="form-label">Nome completo</label>
+          <input type="text" class="form-control" id="cadastro-nome" placeholder="Digite seu nome" required>
+        </div>
+        <div class="mb-3">
+          <label for="cadastro-email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="cadastro-email" placeholder="Digite seu email" required>
+        </div>
+        <div class="mb-3">
+          <label for="cadastro-senha" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="cadastro-senha" placeholder="Digite sua senha" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mb-2">Criar conta</button>
+        <a href="#" id="voltar-login" class="d-block text-center mb-2" style="color:var(--secondary-color);">Voltar ao login</a>
       </form>
     </div>
   </main>
@@ -76,6 +96,41 @@
         setTimeout(function(){ splash.style.display = 'none'; }, 500);
       }, 2000);
     });
+    // Alternar entre login e cadastro
+    document.addEventListener('DOMContentLoaded', function() {
+      var showCadastro = document.getElementById('show-cadastro');
+      var voltarLogin = document.getElementById('voltar-login');
+      var loginCard = document.getElementById('login-card');
+      var cadastroCard = document.getElementById('cadastro-card');
+      if(showCadastro && voltarLogin && loginCard && cadastroCard) {
+        showCadastro.onclick = function(e) {
+          e.preventDefault();
+          loginCard.style.display = 'none';
+          cadastroCard.style.display = 'block';
+        };
+        voltarLogin.onclick = function(e) {
+          e.preventDefault();
+          cadastroCard.style.display = 'none';
+          loginCard.style.display = 'block';
+        };
+      }
+      // Cadastro funcional
+      var cadastroForm = document.getElementById('cadastro-form');
+      if(cadastroForm) {
+        cadastroForm.onsubmit = function(e) {
+          e.preventDefault();
+          var nome = document.getElementById('cadastro-nome').value;
+          var email = document.getElementById('cadastro-email').value;
+          var senha = document.getElementById('cadastro-senha').value;
+          var usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+          usuarios.push({ nome, email, senha });
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          alert('Cadastro realizado com sucesso!');
+          cadastroCard.style.display = 'none';
+          loginCard.style.display = 'block';
+        };
+      }
+    });
   </script>
   <style>
     @keyframes splashFade {
@@ -86,6 +141,7 @@
     @media (max-width: 576px) {
       .card { padding: 1.5rem 0.5rem; }
       .card h2 { font-size: 1.5rem; }
+      .form-label, .form-control, .btn { font-size: 1rem; }
     }
   </style>
 </body>
