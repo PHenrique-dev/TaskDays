@@ -15,7 +15,7 @@
 <body>
   <!-- Splash Screen -->
   <div id="splash" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:var(--primary-color);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s;">
-    <h1 style="color:var(--secondary-color);font-size:3rem;animation:splashFade 2s ease-in-out;">TaskDay</h1>
+    <h1 style="color:var(--secondary-color);font-size:5rem;animation:splashFade 2s ease-in-out;">TaskDay</h1>
   </div>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg">
@@ -215,6 +215,10 @@
       var usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
       var editIndex = null;
       var excluirIndex = null;
+      var ultimoDia = localStorage.getItem('ultimoDia') || '';
+      var historico = JSON.parse(localStorage.getItem('historico_' + (usuarioLogado ? usuarioLogado.email : '')) || '{}');
+      var pontosConsecutivos = parseInt(localStorage.getItem('pontosConsecutivos_' + (usuarioLogado ? usuarioLogado.email : '')) || '0');
+      var diaConcluido = false;
 
       // Alternância de telas
       function mostrarTelaLogin() {
@@ -318,8 +322,13 @@
         var atividades = getAtividades();
         var hoje = diaAtualSemana();
         listaAtividades.innerHTML = '';
+        var concluidasHoje = 0;
+        var totalHoje = 0;
         atividades.forEach(function(atividade, idx) {
           if(atividade.dias.includes(hoje)) {
+            totalHoje++;
+            var concluida = historico[dataAtualFormatada()] && historico[dataAtualFormatada()].concluidas && historico[dataAtualFormatada()].concluidas.includes(idx);
+            if(concluida) concluidasHoje++;
             var li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
             li.innerHTML = `<div>
@@ -327,13 +336,20 @@
               <small>${atividade.horaInicio} - ${atividade.horaFim}</small>
             </div>
             <div>
-              <button class="btn btn-success btn-sm me-1" data-idx="${idx}" data-action="concluir"><i class="fa-solid fa-check"></i></button>
+              <button class="btn btn-success btn-sm me-1" data-idx="${idx}" data-action="concluir" ${concluida ? 'disabled' : ''}><i class="fa-solid fa-check"></i></button>
               <button class="btn btn-primary btn-sm me-1" data-idx="${idx}" data-action="editar"><i class="fa-solid fa-pen"></i></button>
               <button class="btn btn-danger btn-sm" data-idx="${idx}" data-action="excluir"><i class="fa-solid fa-trash"></i></button>
             </div>`;
+            if(concluida) li.classList.add('list-group-item-success');
             listaAtividades.appendChild(li);
           }
         });
+        // Pontos extras por dia completo
+        if(totalHoje > 0 && concluidasHoje === totalHoje && !diaConcluido) {
+          pontosConsecutivos++;
+          localStorage.setItem('pontosConsecutivos_' + usuarioLogado.email, pontosConsecutivos);
+          diaConcluido = true;
+        }
       }
       // Dias da semana checkboxes
       if(diasSemanaCheckboxes) {
@@ -394,7 +410,13 @@
           excluirIndex = idx;
           modalConfirm.show();
         } else if(action === 'concluir') {
+          // Histórico de conclusão
+          var data = dataAtualFormatada();
+          if(!historico[data]) historico[data] = { concluidas: [], pendentes: [] };
+          if(!historico[data].concluidas.includes(idx)) historico[data].concluidas.push(idx);
+          localStorage.setItem('historico_' + usuarioLogado.email, JSON.stringify(historico));
           modalMotivacional.show();
+          renderAtividades();
         }
       };
       // Confirmar exclusão
@@ -403,6 +425,11 @@
         if(excluirIndex !== null) {
           atividades.splice(excluirIndex, 1);
           setAtividades(atividades);
+          // Remover do histórico
+          Object.keys(historico).forEach(function(data){
+            if(historico[data].concluidas) historico[data].concluidas = historico[data].concluidas.filter(i => i !== excluirIndex);
+          });
+          localStorage.setItem('historico_' + usuarioLogado.email, JSON.stringify(historico));
           renderAtividades();
           modalConfirm.hide();
         }
@@ -415,6 +442,36 @@
           }
         };
       });
+
+      // Troca automática de dia às 00:00
+      function verificaTrocaDia() {
+        var hoje = dataAtualFormatada();
+        if(ultimoDia !== hoje) {
+          ultimoDia = hoje;
+          localStorage.setItem('ultimoDia', ultimoDia);
+          diaConcluido = false;
+          renderAtividades();
+        }
+      }
+      setInterval(verificaTrocaDia, 60000); // verifica a cada minuto
+      verificaTrocaDia();
+
+      // Reset semanal no domingo à noite ou segunda às 00:00
+      function verificaResetSemanal() {
+        var hoje = new Date();
+        var diaSemana = hoje.getDay();
+        var hora = hoje.getHours();
+        var minutos = hoje.getMinutes();
+        if((diaSemana === 0 && hora === 23 && minutos >= 59) || (diaSemana === 1 && hora === 0 && minutos < 5)) {
+          historico = {};
+          pontosConsecutivos = 0;
+          localStorage.setItem('historico_' + usuarioLogado.email, JSON.stringify(historico));
+          localStorage.setItem('pontosConsecutivos_' + usuarioLogado.email, pontosConsecutivos);
+        }
+      }
+      setInterval(verificaResetSemanal, 60000); // verifica a cada minuto
+      verificaResetSemanal();
+    });
     });
   </script>
   <style>
