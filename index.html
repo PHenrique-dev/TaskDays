@@ -456,8 +456,26 @@
         var atividade = { nome, horaInicio, horaFim, dias };
         if(editIndex !== null) {
           atividades[editIndex] = atividade;
+          // Atualizar evento Google Calendar
+          if(atividades[editIndex].eventId) {
+            updateCalendarEvent(atividades[editIndex].eventId, atividade, function(ev){
+              atividade.eventId = ev.id;
+              atividades[editIndex] = atividade;
+              setAtividades(atividades);
+            });
+          } else {
+            createCalendarEvent(atividade, function(ev){
+              atividade.eventId = ev.id;
+              atividades[editIndex] = atividade;
+              setAtividades(atividades);
+            });
+          }
         } else {
-          atividades.push(atividade);
+          createCalendarEvent(atividade, function(ev){
+            atividade.eventId = ev.id;
+            atividades.push(atividade);
+            setAtividades(atividades);
+          });
         }
         setAtividades(atividades);
         modalAtividade.hide();
@@ -496,6 +514,10 @@
       document.getElementById('btn-confirm-excluir').onclick = function(){
         var atividades = getAtividades();
         if(excluirIndex !== null) {
+          // Remover evento Google Calendar
+          if(atividades[excluirIndex].eventId) {
+            deleteCalendarEvent(atividades[excluirIndex].eventId, function(){});
+          }
           atividades.splice(excluirIndex, 1);
           setAtividades(atividades);
           // Remover do histórico
