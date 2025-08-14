@@ -58,6 +58,11 @@
   </nav>
   <!-- Tela de Login -->
   <main class="container d-flex flex-column justify-content-center align-items-center" style="min-height:80vh;">
+    <!-- Tela de Conquistas -->
+    <div id="conquistas-card" class="card shadow p-4 w-100" style="max-width:500px; display:none;">
+      <h3 class="mb-3 text-center" style="color:var(--primary-color);">Conquistas</h3>
+      <ul class="list-group mb-3" id="conquistas-list"></ul>
+    </div>
     <!-- Tela de Perfil -->
     <div id="perfil-card" class="card shadow p-4 w-100" style="max-width:500px; display:none;">
       <h3 class="mb-3 text-center" style="color:var(--primary-color);">Perfil do Usuário</h3>
@@ -212,7 +217,6 @@
         splash.style.opacity = '0';
         setTimeout(function(){ splash.style.display = 'none'; }, 500);
       }, 2000);
-    });
     // Alternar entre login, cadastro e atividades, autenticação e CRUD de atividades
     document.addEventListener('DOMContentLoaded', function() {
       var showCadastro = document.getElementById('show-cadastro');
@@ -466,8 +470,45 @@
           if(item.textContent === 'Perfil') {
             mostrarTelaPerfil();
           }
+          if(item.textContent === 'Conquistas') {
+            mostrarTelaConquistas();
+          }
         };
       });
+
+      // Função para mostrar tela de conquistas
+      function mostrarTelaConquistas() {
+        loginCard.style.display = 'none';
+        cadastroCard.style.display = 'none';
+        atividadesCard.style.display = 'none';
+        var perfilCard = document.getElementById('perfil-card');
+        if(perfilCard) perfilCard.style.display = 'none';
+        var conquistasCard = document.getElementById('conquistas-card');
+        if(conquistasCard) conquistasCard.style.display = 'block';
+        renderConquistas();
+      }
+
+      // Função para renderizar conquistas
+      function renderConquistas() {
+        var conquistasList = document.getElementById('conquistas-list');
+        if(!usuarioLogado || !conquistasList) return;
+        var pontos = pontosConsecutivos;
+        var conquistas = [
+          { nome: '1 semana completa', desbloqueada: pontos >= 7, requisito: 'Complete 7 dias consecutivos de atividades.' },
+          { nome: '1 mês completo', desbloqueada: pontos >= 30, requisito: 'Complete 30 dias consecutivos de atividades.' },
+          { nome: '100 dias consecutivos', desbloqueada: pontos >= 100, requisito: 'Complete 100 dias consecutivos de atividades.' },
+          { nome: 'Primeira atividade concluída', desbloqueada: pontos > 0, requisito: 'Conclua sua primeira atividade.' }
+        ];
+        conquistasList.innerHTML = conquistas.map(c => `
+          <li class="list-group-item d-flex justify-content-between align-items-center ${c.desbloqueada ? 'list-group-item-success' : ''}">
+            <div>
+              <strong>${c.nome}</strong><br>
+              <small>${c.requisito}</small>
+            </div>
+            <span class="badge ${c.desbloqueada ? 'bg-success' : 'bg-secondary'}">${c.desbloqueada ? 'Desbloqueada' : 'Pendente'}</span>
+          </li>
+        `).join('');
+      }
 
       // Função para mostrar tela de perfil
       function mostrarTelaPerfil() {
