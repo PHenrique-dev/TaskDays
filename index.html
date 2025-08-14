@@ -94,6 +94,86 @@
         <a href="#" id="voltar-login" class="d-block text-center mb-2" style="color:var(--secondary-color);">Voltar ao login</a>
       </form>
     </div>
+    <!-- Tela de Atividades -->
+    <div id="atividades-card" class="card shadow p-4 w-100" style="max-width:500px; display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0" id="data-dia"></h3>
+        <button class="btn btn-success" id="btn-add-atividade"><i class="fa-solid fa-plus"></i> Adicionar atividade</button>
+      </div>
+      <ul class="list-group" id="lista-atividades"></ul>
+    </div>
+    <!-- Modal Adicionar/Editar -->
+    <div class="modal fade" id="modalAtividade" tabindex="-1" aria-labelledby="modalAtividadeLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="form-atividade">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalAtividadeLabel">Adicionar atividade</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="nome-atividade" class="form-label">Nome da atividade</label>
+                <input type="text" class="form-control" id="nome-atividade" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Dia(s) da semana</label><br>
+                <div id="dias-semana-checkboxes" class="d-flex flex-wrap gap-2">
+                  <!-- checkboxes -->
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="hora-inicio" class="form-label">Horário de início</label>
+                <input type="time" class="form-control" id="hora-inicio" required>
+              </div>
+              <div class="mb-3">
+                <label for="hora-fim" class="form-label">Horário de término</label>
+                <input type="time" class="form-control" id="hora-fim" required>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-success">Salvar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Modal de confirmação -->
+    <div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalConfirmLabel">Confirmar exclusão</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Tem certeza que deseja excluir esta atividade?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="btn-confirm-excluir">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal motivacional -->
+    <div class="modal fade" id="modalMotivacional" tabindex="-1" aria-labelledby="modalMotivacionalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalMotivacionalLabel">Parabéns!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Você concluiu uma atividade! Continue assim!
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -110,12 +190,13 @@
         setTimeout(function(){ splash.style.display = 'none'; }, 500);
       }, 2000);
     });
-    // Alternar entre login e cadastro e autenticação
+    // Alternar entre login, cadastro e atividades, autenticação e CRUD de atividades
     document.addEventListener('DOMContentLoaded', function() {
       var showCadastro = document.getElementById('show-cadastro');
       var voltarLogin = document.getElementById('voltar-login');
       var loginCard = document.getElementById('login-card');
       var cadastroCard = document.getElementById('cadastro-card');
+      var atividadesCard = document.getElementById('atividades-card');
       var loginForm = document.getElementById('login-form');
       var cadastroForm = document.getElementById('cadastro-form');
       var navbarLinks = document.getElementById('navbar-links');
@@ -123,20 +204,38 @@
       var navbarWelcome = document.getElementById('navbar-welcome');
       var navLogin = document.getElementById('nav-login');
       var navbarLogout = document.getElementById('navbar-logout');
+      var listaAtividades = document.getElementById('lista-atividades');
+      var btnAddAtividade = document.getElementById('btn-add-atividade');
+      var modalAtividade = new bootstrap.Modal(document.getElementById('modalAtividade'));
+      var modalConfirm = new bootstrap.Modal(document.getElementById('modalConfirm'));
+      var modalMotivacional = new bootstrap.Modal(document.getElementById('modalMotivacional'));
+      var formAtividade = document.getElementById('form-atividade');
+      var diasSemanaCheckboxes = document.getElementById('dias-semana-checkboxes');
+      var dataDia = document.getElementById('data-dia');
+      var usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
+      var editIndex = null;
+      var excluirIndex = null;
 
       // Alternância de telas
-      if(showCadastro && voltarLogin && loginCard && cadastroCard) {
-        showCadastro.onclick = function(e) {
-          e.preventDefault();
-          loginCard.style.display = 'none';
-          cadastroCard.style.display = 'block';
-        };
-        voltarLogin.onclick = function(e) {
-          e.preventDefault();
-          cadastroCard.style.display = 'none';
-          loginCard.style.display = 'block';
-        };
+      function mostrarTelaLogin() {
+        loginCard.style.display = 'block';
+        cadastroCard.style.display = 'none';
+        atividadesCard.style.display = 'none';
       }
+      function mostrarTelaCadastro() {
+        loginCard.style.display = 'none';
+        cadastroCard.style.display = 'block';
+        atividadesCard.style.display = 'none';
+      }
+      function mostrarTelaAtividades() {
+        loginCard.style.display = 'none';
+        cadastroCard.style.display = 'none';
+        atividadesCard.style.display = 'block';
+        renderAtividades();
+      }
+      if(showCadastro) showCadastro.onclick = function(e) { e.preventDefault(); mostrarTelaCadastro(); };
+      if(voltarLogin) voltarLogin.onclick = function(e) { e.preventDefault(); mostrarTelaLogin(); };
+
       // Cadastro funcional
       if(cadastroForm) {
         cadastroForm.onsubmit = function(e) {
@@ -148,8 +247,7 @@
           usuarios.push({ nome, email, senha });
           localStorage.setItem('usuarios', JSON.stringify(usuarios));
           alert('Cadastro realizado com sucesso!');
-          cadastroCard.style.display = 'none';
-          loginCard.style.display = 'block';
+          mostrarTelaLogin();
         };
       }
       // Autenticação de login
@@ -162,17 +260,15 @@
         if(navbarLinks) navbarLinks.style.display = 'none';
         if(navbarUser) navbarUser.style.display = 'flex';
         if(navbarWelcome) navbarWelcome.textContent = `Bem-vindo(a), ${usuario.nome}`;
-        if(loginCard) loginCard.style.display = 'none';
-        if(cadastroCard) cadastroCard.style.display = 'none';
+        mostrarTelaAtividades();
       }
       function esconderUsuario() {
         if(navbarLinks) navbarLinks.style.display = '';
         if(navbarUser) navbarUser.style.display = 'none';
         if(navbarWelcome) navbarWelcome.textContent = '';
-        if(loginCard) loginCard.style.display = 'block';
+        mostrarTelaLogin();
       }
       // Persistência de login
-      var usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
       if(usuarioLogado) {
         mostrarUsuario(usuarioLogado);
       }
@@ -199,6 +295,126 @@
           esconderUsuario();
         };
       }
+
+      // Atividades CRUD
+      function getAtividades() {
+        if(!usuarioLogado) return [];
+        var atividades = JSON.parse(localStorage.getItem('atividades_' + usuarioLogado.email) || '[]');
+        return atividades;
+      }
+      function setAtividades(atividades) {
+        if(!usuarioLogado) return;
+        localStorage.setItem('atividades_' + usuarioLogado.email, JSON.stringify(atividades));
+      }
+      function diaAtualSemana() {
+        return new Date().getDay(); // 0=Dom, 1=Seg, ... 6=Sab
+      }
+      function dataAtualFormatada() {
+        var hoje = new Date();
+        return hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+      function renderAtividades() {
+        if(dataDia) dataDia.textContent = dataAtualFormatada();
+        var atividades = getAtividades();
+        var hoje = diaAtualSemana();
+        listaAtividades.innerHTML = '';
+        atividades.forEach(function(atividade, idx) {
+          if(atividade.dias.includes(hoje)) {
+            var li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `<div>
+              <strong>${atividade.nome}</strong><br>
+              <small>${atividade.horaInicio} - ${atividade.horaFim}</small>
+            </div>
+            <div>
+              <button class="btn btn-success btn-sm me-1" data-idx="${idx}" data-action="concluir"><i class="fa-solid fa-check"></i></button>
+              <button class="btn btn-primary btn-sm me-1" data-idx="${idx}" data-action="editar"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn btn-danger btn-sm" data-idx="${idx}" data-action="excluir"><i class="fa-solid fa-trash"></i></button>
+            </div>`;
+            listaAtividades.appendChild(li);
+          }
+        });
+      }
+      // Dias da semana checkboxes
+      if(diasSemanaCheckboxes) {
+        var dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+        diasSemanaCheckboxes.innerHTML = dias.map(function(dia, i){
+          return `<div class="form-check">
+            <input class="form-check-input" type="checkbox" value="${i}" id="dia${i}">
+            <label class="form-check-label" for="dia${i}">${dia}</label>
+          </div>`;
+        }).join('');
+      }
+      // Adicionar atividade
+      if(btnAddAtividade) btnAddAtividade.onclick = function(){
+        editIndex = null;
+        document.getElementById('modalAtividadeLabel').textContent = 'Adicionar atividade';
+        formAtividade.reset();
+        if(diasSemanaCheckboxes) {
+          diasSemanaCheckboxes.querySelectorAll('input').forEach(function(cb){ cb.checked = false; });
+        }
+        modalAtividade.show();
+      };
+      // Salvar atividade
+      if(formAtividade) formAtividade.onsubmit = function(e){
+        e.preventDefault();
+        var nome = document.getElementById('nome-atividade').value;
+        var horaInicio = document.getElementById('hora-inicio').value;
+        var horaFim = document.getElementById('hora-fim').value;
+        var dias = Array.from(diasSemanaCheckboxes.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
+        if(dias.length === 0) { alert('Selecione pelo menos um dia da semana!'); return; }
+        var atividades = getAtividades();
+        var atividade = { nome, horaInicio, horaFim, dias };
+        if(editIndex !== null) {
+          atividades[editIndex] = atividade;
+        } else {
+          atividades.push(atividade);
+        }
+        setAtividades(atividades);
+        modalAtividade.hide();
+        renderAtividades();
+      };
+      // Editar/Excluir/Concluir
+      if(listaAtividades) listaAtividades.onclick = function(e){
+        var btn = e.target.closest('button');
+        if(!btn) return;
+        var idx = parseInt(btn.getAttribute('data-idx'));
+        var action = btn.getAttribute('data-action');
+        var atividades = getAtividades();
+        if(action === 'editar') {
+          editIndex = idx;
+          var atividade = atividades[idx];
+          document.getElementById('modalAtividadeLabel').textContent = 'Editar atividade';
+          document.getElementById('nome-atividade').value = atividade.nome;
+          document.getElementById('hora-inicio').value = atividade.horaInicio;
+          document.getElementById('hora-fim').value = atividade.horaFim;
+          diasSemanaCheckboxes.querySelectorAll('input').forEach(function(cb){ cb.checked = atividade.dias.includes(parseInt(cb.value)); });
+          modalAtividade.show();
+        } else if(action === 'excluir') {
+          excluirIndex = idx;
+          modalConfirm.show();
+        } else if(action === 'concluir') {
+          modalMotivacional.show();
+        }
+      };
+      // Confirmar exclusão
+      document.getElementById('btn-confirm-excluir').onclick = function(){
+        var atividades = getAtividades();
+        if(excluirIndex !== null) {
+          atividades.splice(excluirIndex, 1);
+          setAtividades(atividades);
+          renderAtividades();
+          modalConfirm.hide();
+        }
+      };
+      // Navegação pelo menu
+      document.querySelectorAll('.dropdown-item').forEach(function(item){
+        item.onclick = function(e){
+          if(item.textContent === 'Atividades') {
+            mostrarTelaAtividades();
+          }
+        };
+      });
     });
   </script>
   <style>
