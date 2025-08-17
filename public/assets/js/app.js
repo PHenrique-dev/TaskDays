@@ -15,7 +15,7 @@ if (window.location.pathname.endsWith('index.html')) {
 }
 
 // Animação de splash e transição para login/cadastro
-window.onload = function() {
+document.addEventListener('DOMContentLoaded', function() {
   // Splash na index.html
   if (window.location.pathname.endsWith('index.html')) {
     setTimeout(() => {
@@ -33,26 +33,32 @@ window.onload = function() {
             renderAuth();
           } catch (err) {
             console.error('Erro ao executar renderAuth:', err);
-            // Fallback: mostrar formulário simples
             document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.<br><b>Se estiver em localhost, teste em HTTPS ou no domínio final.</b></p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
           }
         } else if (tentativas < 10) {
           tentativas++;
           setTimeout(tentarRenderAuth, 200);
         } else {
-          // Fallback: mostrar formulário simples
           document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.<br><b>Se estiver em localhost, teste em HTTPS ou no domínio final.</b></p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
         }
       }
       tentarRenderAuth();
     }, 1800);
+    // Fallback: se splash não sumir em 5s, força ocultar
+    setTimeout(() => {
+      const splash = document.getElementById('splash');
+      if (splash && !splash.classList.contains('d-none')) {
+        splash.classList.add('d-none');
+        document.getElementById('auth').classList.remove('d-none');
+      }
+    }, 5000);
   }
 
   // Navbar dinâmica nas telas principais
   if (['/main.html', '/profile.html', '/achievements.html'].some(p => window.location.pathname.endsWith(p))) {
     renderNavbar();
   }
-}
+});
 
 // Função para renderizar navbar dinâmica
 function renderNavbar() {
