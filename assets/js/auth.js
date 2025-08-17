@@ -1,18 +1,4 @@
-// LOG VISUAL DE INÍCIO DO AUTH.JS
-if (window.location.pathname.endsWith('index.html')) {
-  const authLog = document.createElement('div');
-  authLog.style.position = 'fixed';
-  authLog.style.top = '50px';
-  authLog.style.right = '10px';
-  authLog.style.background = '#222';
-  authLog.style.color = '#2ecc71';
-  authLog.style.padding = '8px 16px';
-  authLog.style.zIndex = '99999';
-  authLog.style.borderRadius = '8px';
-  authLog.textContent = 'auth.js executado';
-  document.body.appendChild(authLog);
-  setTimeout(() => authLog.remove(), 4000);
-}
+// ...existing code...
 
 // Função para renderizar login/cadastro
 function renderAuth() {

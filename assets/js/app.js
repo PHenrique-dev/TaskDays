@@ -1,18 +1,4 @@
-// LOG VISUAL DE INÍCIO DO APP.JS
-if (window.location.pathname.endsWith('index.html')) {
-  const splashLog = document.createElement('div');
-  splashLog.style.position = 'fixed';
-  splashLog.style.top = '10px';
-  splashLog.style.right = '10px';
-  splashLog.style.background = '#222';
-  splashLog.style.color = '#2ecc71';
-  splashLog.style.padding = '8px 16px';
-  splashLog.style.zIndex = '99999';
-  splashLog.style.borderRadius = '8px';
-  splashLog.textContent = 'app.js executado';
-  document.body.appendChild(splashLog);
-  setTimeout(() => splashLog.remove(), 4000);
-}
+// ...existing code...
 
 // Animação de splash e transição para login/cadastro
 document.addEventListener('DOMContentLoaded', function() {
