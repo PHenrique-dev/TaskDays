@@ -446,14 +446,20 @@ window.editarAtividade = function(idx) {
 	modal.show();
 	document.getElementById('editActivityForm').onsubmit = function(e) {
 		e.preventDefault();
-		act.nome = this.querySelector('input[type="text"]').value;
-		act.dia = this.querySelector('input[type="date"]').value;
-		act.horarioInicio = this.querySelectorAll('input[type="time"]')[0].value;
-		act.horarioFim = this.querySelectorAll('input[type="time"]')[1].value;
-		acts[idx] = act;
-    // Atualiza o objeto user igual à função de excluir
+    act.nome = this.querySelector('input[type="text"]').value;
+    const oldDia = acts[idx].dia;
+    const newDia = this.querySelector('input[type="date"]').value;
+    act.dia = newDia;
+    act.horarioInicio = this.querySelectorAll('input[type="time"]')[0].value;
+    act.horarioFim = this.querySelectorAll('input[type="time"]')[1].value;
+    // Remove do dia antigo
     const user = JSON.parse(localStorage.getItem('taskday_user'));
-    user.atividades[act.dia] = acts;
+    if (!user.atividades[oldDia]) user.atividades[oldDia] = [];
+    user.atividades[oldDia].splice(idx, 1);
+    // Adiciona ao novo dia
+    if (!user.atividades[newDia]) user.atividades[newDia] = [];
+    user.atividades[newDia].push(act);
+    // Atualiza histórico
     user.historico = Object.keys(user.atividades || {}).filter(dia => {
       return user.atividades[dia].some(a => a.concluida);
     });
