@@ -3,16 +3,29 @@ window.onload = function() {
   // Splash na index.html
   if (window.location.pathname.endsWith('index.html')) {
     setTimeout(() => {
-      document.getElementById('splash').classList.add('d-none');
-      document.getElementById('auth').classList.remove('d-none');
+      try {
+        document.getElementById('splash').classList.add('d-none');
+        document.getElementById('auth').classList.remove('d-none');
+      } catch (e) {
+        console.error('Erro ao ocultar splash ou mostrar auth:', e);
+      }
       // Garante que renderAuth será chamado mesmo se não estiver definido imediatamente
       let tentativas = 0;
       function tentarRenderAuth() {
         if (typeof renderAuth === 'function') {
-          renderAuth();
+          try {
+            renderAuth();
+          } catch (err) {
+            console.error('Erro ao executar renderAuth:', err);
+            // Fallback: mostrar formulário simples
+            document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p>Erro ao carregar o formulário. Recarregue a página ou limpe o cache.</p></div>';
+          }
         } else if (tentativas < 10) {
           tentativas++;
           setTimeout(tentarRenderAuth, 200);
+        } else {
+          // Fallback: mostrar formulário simples
+          document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p>Erro ao carregar o formulário. Recarregue a página ou limpe o cache.</p></div>';
         }
       }
       tentarRenderAuth();
