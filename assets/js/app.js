@@ -3,41 +3,20 @@
 // Animação de splash e transição para login/cadastro
 document.addEventListener('DOMContentLoaded', function() {
   // Splash na index.html
-  if (window.location.pathname.endsWith('index.html')) {
-    setTimeout(() => {
-      try {
-        document.getElementById('splash').classList.add('d-none');
-        document.getElementById('auth').classList.remove('d-none');
-      } catch (e) {
-        console.error('Erro ao ocultar splash ou mostrar auth:', e);
-      }
-      // Garante que renderAuth será chamado mesmo se não estiver definido imediatamente
-      let tentativas = 0;
-      function tentarRenderAuth() {
-        if (typeof renderAuth === 'function') {
-          try {
-            renderAuth();
-          } catch (err) {
-            console.error('Erro ao executar renderAuth:', err);
-            document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.<br><b>Se estiver em localhost, teste em HTTPS ou no domínio final.</b></p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
-          }
-        } else if (tentativas < 10) {
-          tentativas++;
-          setTimeout(tentarRenderAuth, 200);
-        } else {
-          document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.<br><b>Se estiver em localhost, teste em HTTPS ou no domínio final.</b></p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
+    if (window.location.pathname.endsWith('index.html')) {
+      var authDiv = document.getElementById('auth');
+      if (authDiv) authDiv.classList.remove('d-none');
+      if (typeof renderAuth === 'function') {
+        try {
+          renderAuth();
+        } catch (err) {
+          console.error('Erro ao executar renderAuth:', err);
+          authDiv.innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.</p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
         }
+      } else {
+        authDiv.innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.</p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
       }
-      tentarRenderAuth();
-    }, 1800);
-    // Fallback: se splash não sumir em 5s, força ocultar
-    setTimeout(() => {
-      const splash = document.getElementById('splash');
-      if (splash && !splash.classList.contains('d-none')) {
-        splash.classList.add('d-none');
-        document.getElementById('auth').classList.remove('d-none');
-      }
-    }, 5000);
+    }
   }
 
   // Navbar dinâmica nas telas principais
