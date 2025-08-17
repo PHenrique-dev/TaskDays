@@ -18,14 +18,14 @@ window.onload = function() {
           } catch (err) {
             console.error('Erro ao executar renderAuth:', err);
             // Fallback: mostrar formulário simples
-            document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p>Erro ao carregar o formulário. Recarregue a página ou limpe o cache.</p></div>';
+            document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.<br><b>Se estiver em localhost, teste em HTTPS ou no domínio final.</b></p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
           }
         } else if (tentativas < 10) {
           tentativas++;
           setTimeout(tentarRenderAuth, 200);
         } else {
           // Fallback: mostrar formulário simples
-          document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p>Erro ao carregar o formulário. Recarregue a página ou limpe o cache.</p></div>';
+          document.getElementById('auth').innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.<br><b>Se estiver em localhost, teste em HTTPS ou no domínio final.</b></p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
         }
       }
       tentarRenderAuth();
