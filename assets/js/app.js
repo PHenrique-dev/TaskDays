@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         authDiv.innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.</p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
       }
-    }
   }
 
   // Navbar dinâmica nas telas principais
