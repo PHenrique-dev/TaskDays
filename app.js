@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Navbar dinâmica nas telas principais
-  if (["/main.html", "/profile.html", "/achievements.html"].some(p => window.location.pathname.endsWith(p))) {
+  if (["main.html", "profile.html", "achievements.html"].some(p => window.location.pathname.endsWith(p))) {
     renderNavbar();
   }
 });

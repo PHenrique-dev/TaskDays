@@ -16,7 +16,7 @@ body {
   box-shadow: 0 2px 8px rgba(39, 174, 96, 0.15);
 }
 .card {
-  background: #343a40;
+  background: #343a40 !important;
   color: #e9ecef;
   border-radius: 1rem;
   box-shadow: 0 2px 8px rgba(44, 62, 80, 0.15);
