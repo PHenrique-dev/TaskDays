@@ -2,7 +2,6 @@ body {
   background-color: #212529;
   color: #e9ecef;
   font-family: 'Segoe UI', Arial, sans-serif;
-  transition: background 0.3s;
   min-height: 100vh;
 }
 .text-success {
@@ -11,7 +10,6 @@ body {
 .btn-success {
   background-color: #2ecc71;
   border: none;
-  transition: background 0.2s, box-shadow 0.2s;
 }
 .btn-success:hover {
   background-color: #27ae60;
