@@ -1,25 +1,24 @@
 // ...existing code...
 
-// Animação de splash e transição para login/cadastro
 document.addEventListener('DOMContentLoaded', function() {
-  // Splash na index.html
-    if (window.location.pathname.endsWith('index.html')) {
-      var authDiv = document.getElementById('auth');
-      if (authDiv) authDiv.classList.remove('d-none');
-      if (typeof renderAuth === 'function') {
-        try {
-          renderAuth();
-        } catch (err) {
-          console.error('Erro ao executar renderAuth:', err);
-          authDiv.innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.</p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
-        }
-      } else {
+  // Exibe login/cadastro na index.html imediatamente
+  if (window.location.pathname.endsWith('index.html')) {
+    var authDiv = document.getElementById('auth');
+    if (authDiv) authDiv.classList.remove('d-none');
+    if (typeof renderAuth === 'function') {
+      try {
+        renderAuth();
+      } catch (err) {
+        console.error('Erro ao executar renderAuth:', err);
         authDiv.innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.</p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
       }
+    } else {
+      authDiv.innerHTML = '<div class="container text-center mt-5"><h2 class="text-success">Entrar no TaskDay</h2><p class="text-danger">Erro ao carregar o formulário de login/cadastro.<br>Verifique sua conexão, recarregue a página ou limpe o cache.</p><button class="btn btn-success mt-3" onclick="location.reload()">Recarregar</button></div>';
+    }
   }
 
   // Navbar dinâmica nas telas principais
-  if (['/main.html', '/profile.html', '/achievements.html'].some(p => window.location.pathname.endsWith(p))) {
+  if (["/main.html", "/profile.html", "/achievements.html"].some(p => window.location.pathname.endsWith(p))) {
     renderNavbar();
   }
 });
